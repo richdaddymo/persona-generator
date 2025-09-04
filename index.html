@@ -8,127 +8,173 @@
     <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-    body {
-        font-family: 'Inter', sans-serif;
-        font-size: clamp(14px, 2.5vw, 16px); /* Responsive Basis-Schriftgröße */
-    }
-    .loader {
-        border: 4px solid #e5e7eb;
-        border-top: 4px solid #4f46e5;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 
-        0% { transform: rotate(0deg); } 
-        100% { transform: rotate(360deg); } 
-    }
-    .header-gradient { 
-        background: linear-gradient(135deg, #1f2937, #111827);
-    }
-    .btn-animate { 
-        transition: all 0.2s ease-in-out; 
-    }
-    .btn-animate:hover { 
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    .persona-card { 
-        transition: all 0.2s ease-in-out;
-        border: 1px solid #e5e7eb;
-    }
-    .section-icon {
-        width: clamp(1.25rem, 3vw, 1.75rem); /* Responsive Icon-Größe */
-        height: clamp(1.25rem, 3vw, 1.75rem);
-        margin-right: 0.75rem;
-        color: #4f46e5;
-    }
-    .tooltip-container {
-        position: relative;
-        display: inline-block;
-    }
-    .tooltip-icon {
-        cursor: pointer;
-        margin-left: 8px;
-        color: #9ca3af;
-    }
-    .tooltip-text {
-        visibility: hidden;
-        width: clamp(180px, 40vw, 220px); /* Responsive Tooltip-Breite */
-        background-color: #1f2937;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 8px;
-        position: absolute;
-        z-index: 10;
-        bottom: 125%;
-        left: 50%;
-        margin-left: calc(clamp(180px, 40vw, 220px) / -2); /* Zentrierung anpassen */
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: clamp(0.65rem, 2vw, 0.75rem); /* Responsive Schriftgröße */
-        line-height: 1.25;
-    }
-    .tooltip-container:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-    }
-
-    /* Responsive Anpassungen */
-    @media (max-width: 640px) {
         body {
-            padding: 1rem; /* Weniger Padding auf Mobile */
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(15px, 2.5vw, 17px);
+            background-color: #f8fafc;
         }
-        .max-w-4xl {
-            max-width: 100%; /* Volle Breite auf Mobile */
-            padding: 1rem; /* Reduziertes Padding */
+        [dir="rtl"] {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            text-align: right;
         }
-        .header-gradient h1 {
-            font-size: clamp(1.5rem, 6vw, 2rem); /* Kleinere Überschrift */
+        .loader {
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
         }
-        .header-gradient p {
-            font-size: clamp(0.875rem, 3.5vw, 1rem); /* Kleinere Unterüberschrift */
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
         }
-        .btn-animate {
-            font-size: clamp(0.75rem, 3vw, 0.875rem); /* Kleinere Button-Schrift */
-            padding: 0.75rem; /* Reduziertes Padding für Buttons */
+        .header-gradient { 
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        .flex-col.sm\\:flex-row {
-            flex-direction: column !important; /* Gestapelt auf Mobile */
+        .btn-animate { 
+            transition: all 0.3s ease;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        #strategy-buttons {
-            flex-direction: column !important; /* Gestapelte Strategie-Buttons */
-            gap: 0.5rem; /* Weniger Abstand */
+        .btn-animate:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            background-color: #4f46e5;
         }
-        #export-container {
-            display: flex;
-            flex-direction: column; /* Export-Container gestapelt */
-            gap: 0.5rem;
+        .persona-card { 
+            transition: all 0.3s ease;
+            border: none;
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
-        #export-format {
-            border-radius: 0.5rem; /* Eigene Rundung für Mobile */
+        [dir="rtl"] .persona-card {
+            text-align: right;
         }
-        #btnExport {
-            border-radius: 0.5rem; /* Eigene Rundung für Mobile */
+        .section-icon {
+            width: clamp(1.5rem, 3vw, 1.75rem);
+            height: clamp(1.5rem, 3vw, 1.75rem);
+            margin-right: 0.75rem;
+            color: #6366f1;
+        }
+        [dir="rtl"] .section-icon {
+            margin-right: 0;
+            margin-left: 0.75rem;
+        }
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip-icon {
+            cursor: pointer;
+            margin-left: 8px;
+            color: #9ca3af;
+            font-size: clamp(0.75rem, 2vw, 0.875rem);
+        }
+        [dir="rtl"] .tooltip-icon {
+            margin-left: 0;
+            margin-right: 8px;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: clamp(200px, 40vw, 240px);
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 0.5rem;
+            padding: 10px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            margin-left: calc(clamp(200px, 40vw, 240px) / -2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            line-height: 1.4;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        [dir="rtl"] .tooltip-text {
+            text-align: right;
+        }
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
         }
         input, select {
-            font-size: clamp(0.75rem, 3vw, 0.875rem); /* Kleinere Eingabefelder */
-            padding: 0.75rem; /* Reduziertes Padding */
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            background: #f8fafc;
+            transition: all 0.3s ease;
         }
-        .persona-card h2, .persona-card h3 {
-            font-size: clamp(1.125rem, 4vw, 1.5rem); /* Responsive Überschriften */
+        input:focus, select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
-        .persona-card p, .persona-card li {
-            font-size: clamp(0.75rem, 3vw, 0.875rem); /* Responsive Textgröße */
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            .max-w-4xl {
+                max-width: 100%;
+                padding: 1.25rem;
+            }
+            .header-gradient h1 {
+                font-size: clamp(1.75rem, 6vw, 2.25rem);
+            }
+            .header-gradient p {
+                font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+            }
+            .btn-animate {
+                font-size: clamp(0.8rem, 3vw, 0.9rem);
+                padding: 0.75rem;
+            }
+            .flex-col.sm\\:flex-row {
+                flex-direction: column !important;
+            }
+            #strategy-buttons, #export-container {
+                flex-direction: column !important;
+                gap: 0.75rem;
+            }
+            #export-format, #btnExport {
+                border-radius: 0.75rem;
+            }
+            input, select {
+                font-size: clamp(0.8rem, 3vw, 0.9rem);
+                padding: 0.75rem;
+            }
+            .persona-card h2, .persona-card h3 {
+                font-size: clamp(1.25rem, 4vw, 1.5rem);
+            }
+            .persona-card p, .persona-card li {
+                font-size: clamp(0.8rem, 3vw, 0.9rem);
+            }
         }
-    }
-</style>
+        @media (min-width: 1280px) {
+            .max-w-4xl {
+                max-width: 1100px;
+            }
+            .header-gradient h1 {
+                font-size: clamp(2.5rem, 4vw, 3rem);
+            }
+        }
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        [dir="rtl"] .footer {
+            flex-direction: row-reverse;
+        }
+    </style>
 </head>
-<body class="bg-slate-100 p-4 sm:p-6">
+<body class="bg-slate-50 p-4 sm:p-6">
     <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8 relative">
         
         <div class="absolute top-6 right-6 text-left z-20">
@@ -146,14 +192,14 @@
 
         <div class="header-gradient text-white p-8 rounded-xl mb-8 text-center">
             <h1 data-key="headerTitle" class="text-4xl font-extrabold mb-2 tracking-tight">Persona Generator Pro</h1>
-            <p data-key="headerSubtitle" class="text-lg opacity-80 max-w-2xl mx-auto">Generieren Sie realistische, landestypische Zielgruppen-Personas mit KI und echten Bevölkerungsdaten – ideal für Marketing und Vertrieb.</p>
+            <p data-key="headerSubtitle" class="text-lg opacity-90 max-w-2xl mx-auto">Generieren Sie realistische, landestypische Zielgruppen-Personas mit KI und echten Bevölkerungsdaten – ideal für Marketing und Vertrieb.</p>
         </div>
         
         <div id="input-section" class="grid gap-4 mb-6">
             <div class="relative"><label class="flex items-center"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.25H0v-2.25H-2.25A2.25 2.25 0 010 15V9a2.25 2.25 0 012.25-2.25h1.5M12 4.5h3.75m-3.75 0a3 3 0 00-3 3m0 0h3.75" /></svg></div><input id="gemini-api-key" type="password" data-key="placeholderApiKey" class="w-full pl-10 border-slate-300 rounded-md p-3 bg-slate-50 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Ihr Gemini API-Schlüssel"><div class="tooltip-container"><span class="tooltip-icon">ⓘ</span><span class="tooltip-text" data-key="tooltipApiKey">Geben Sie Ihren persönlichen Google Gemini API-Schlüssel ein. Dieser wird nur in Ihrem Browser gespeichert.</span></div></label></div>
             <div class="relative"><label class="flex items-center"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4M4 7v10l8 4" /></svg></div><input id="product" data-key="placeholderProduct" class="w-full pl-10 border-slate-300 rounded-md p-3 bg-slate-50 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Produkt (z.B. Abnehm-Supplements)"><div class="tooltip-container"><span class="tooltip-icon">ⓘ</span><span class="tooltip-text" data-key="tooltipProduct">Geben Sie den Namen oder eine kurze Beschreibung Ihres Produkts ein. Bsp.: '1:1 Coaching für Muslime'</span></div></label></div>
             <div class="relative"><label class="flex items-center"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></div><input id="niche" data-key="placeholderNiche" class="w-full pl-10 border-slate-300 rounded-md p-3 bg-slate-50 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Nische (z.B. Gesundheit)"><div class="tooltip-container"><span class="tooltip-icon">ⓘ</span><span class="tooltip-text" data-key="tooltipNiche">In welchem Marktsegment ist Ihr Produkt angesiedelt? Bsp.: 'Persönlichkeitsentwicklung'</span></div></label></div>
-            <div class="relative"><label class="flex items-center"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h10a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.905 11A9 9 0 005.024 21M16.095 11A9 9 0 0118.976 21M12 21V11" /></svg></div><input id="country" data-key="placeholderCountry" class="w-full pl-10 border-slate-300 rounded-md p-3 bg-slate-50 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Land (z.B. Germany)" autocomplete="off"><div class="tooltip-container"><span class="tooltip-icon">ⓘ</span><span class="tooltip-text" data-key="tooltipCountry">Für welches Land soll die Persona erstellt werden? Beginnen Sie zu tippen für Vorschläge.</span></div></label><div id="country-suggestions" class="absolute z-10 w-full bg-white border border-slate-300 rounded-md mt-1 max-h-60 overflow-y-auto hidden shadow-lg"></div></div>
+            <div class="relative"><label class="flex items-center"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h10a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.905 11A9 9 0 005.024 21M16.095 11A9 9 0 0118.976 21M12 21V11" /></svg></div><input id="country" data-key="placeholderCountry" class="w-full pl-10 border-slate-300 rounded-md p-3 bg-slate-50 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Land (z.B. Deutschland)" autocomplete="off"><div class="tooltip-container"><span class="tooltip-icon">ⓘ</span><span class="tooltip-text" data-key="tooltipCountry">Für welches Land soll die Persona erstellt werden? Beginnen Sie zu tippen für Vorschläge.</span></div></label><div id="country-suggestions" class="absolute z-10 w-full bg-white border border-slate-300 rounded-md mt-1 max-h-60 overflow-y-auto hidden shadow-lg"></div></div>
         </div>
             
         <div id="potential-section" class="relative pt-2 mb-6 hidden">
@@ -163,22 +209,22 @@
             <div class="flex justify-between text-xs text-slate-500 mt-1"><span data-key="potentialNiche">Nische</span><span data-key="potentialStandard">Standard</span><span data-key="potentialMass">Massenmarkt</span></div>
         </div>
 
-       <div class="flex flex-col sm:flex-row gap-3 flex-wrap">
-    <button id="btnGen" class="flex-grow bg-slate-800 text-white p-3 rounded-lg font-semibold hover:bg-slate-700 btn-animate"></button>
-    <div id="export-container" class="hidden flex-shrink-0 flex flex-col sm:flex-row gap-3">
-        <select id="export-format" class="border-slate-300 rounded-lg sm:rounded-l-lg p-3 bg-slate-50 focus:ring-green-500 focus:border-green-500 transition appearance-none">
-            <option value="html" data-key="exportAsHTML">HTML</option>
-            <option value="doc" data-key="exportAsDOC">Word (.doc)</option>
-        </select>
-        <button id="btnExport" data-key="btnExport" class="px-4 bg-green-600 text-white p-3 rounded-lg sm:rounded-r-lg font-semibold hover:bg-green-700 btn-animate">Export</button>
-    </div>
-    <div id="strategy-buttons" class="hidden flex flex-col sm:flex-row gap-3">
-        <button id="btnJourney" data-key="btnJourney" class="px-4 bg-sky-600 text-white p-3 rounded-lg font-semibold hover:bg-sky-700 btn-animate">Customer Journey</button>
-        <button id="btnAngles" data-key="btnAngles" class="px-4 bg-amber-600 text-white p-3 rounded-lg font-semibold hover:bg-amber-700 btn-animate">Marketing Angles</button>
-        <button id="btnContent" data-key="btnContentIdeas" class="px-4 bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 btn-animate">✨ Content-Ideen</button>
-    </div>
-    <button id="btnClear" data-key="btnReset" class="px-4 bg-slate-500 text-white p-3 rounded-lg font-semibold hover:bg-slate-600 btn-animate">Reset</button>
-</div>
+        <div class="flex flex-col sm:flex-row gap-4 flex-wrap">
+            <button id="btnGen" class="flex-grow bg-indigo-700 text-white p-4 rounded-lg font-semibold hover:bg-indigo-600 btn-animate transition-colors">Analysieren</button>
+            <div id="export-container" class="hidden flex-shrink-0 flex flex-col sm:flex-row gap-4">
+                <select id="export-format" class="border-slate-300 rounded-lg sm:rounded-l-lg p-3 bg-slate-50 focus:ring-green-500 focus:border-green-500 transition appearance-none">
+                    <option value="html" data-key="exportAsHTML">HTML</option>
+                    <option value="doc" data-key="exportAsDOC">Word (.doc)</option>
+                </select>
+                <button id="btnExport" data-key="btnExport" class="px-4 bg-emerald-600 text-white p-4 rounded-lg sm:rounded-r-lg font-semibold hover:bg-emerald-500 btn-animate transition-colors">Export</button>
+            </div>
+            <div id="strategy-buttons" class="hidden flex flex-col sm:flex-row gap-4">
+                <button id="btnJourney" data-key="btnJourney" class="px-4 bg-sky-600 text-white p-4 rounded-lg font-semibold hover:bg-sky-500 btn-animate transition-colors">Customer Journey</button>
+                <button id="btnAngles" data-key="btnAngles" class="px-4 bg-amber-600 text-white p-4 rounded-lg font-semibold hover:bg-amber-500 btn-animate transition-colors">Marketing Angles</button>
+                <button id="btnContent" data-key="btnContentIdeas" class="px-4 bg-indigo-600 text-white p-4 rounded-lg font-semibold hover:bg-indigo-500 btn-animate transition-colors">✨ Content-Ideen</button>
+            </div>
+            <button id="btnClear" data-key="btnReset" class="px-4 bg-slate-600 text-white p-4 rounded-lg font-semibold hover:bg-slate-500 btn-animate transition-colors">Reset</button>
+        </div>
         
         <div id="error" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden"></div>
         <div id="loader" class="hidden flex-col items-center justify-center mt-6"><div class="loader"></div><p id="loader-text" class="mt-2 text-sm text-slate-500"></p></div>
@@ -187,8 +233,9 @@
         <div id="angles-result" class="mt-6 hidden"></div>
         <div id="content-ideas-result" class="mt-6 hidden"></div>
 
-        <div class="mt-8 text-center text-sm text-slate-500 border-t pt-6">
-            <p data-key="footerText">Optimiert für präzise Marketingstrategien mit landestypischen Details und realistischen Schätzungen. <a href="#" data-key="footerLink" class="text-indigo-600 hover:underline">Mehr Tools entdecken</a>.</p>
+        <div class="mt-8 text-center text-sm text-slate-500 border-t pt-6 footer">
+            <span class="inline-block mr-1">&copy;</span>
+            <p data-key="footerText">2025 Ibrahim Mohamed. Alle Rechte vorbehalten.</p>
         </div>
     </div>
 <script>
@@ -204,9 +251,9 @@ const translations = {
         headerTitle: "Persona Generator Pro",
         headerSubtitle: "Generieren Sie realistische, landestypische Zielgruppen-Personas mit KI und echten Bevölkerungsdaten – ideal für Marketing und Vertrieb.",
         placeholderApiKey: "Ihr Gemini API-Schlüssel",
-        placeholderProduct: "Produkt (z.B. 1:1 Coaching für Muslime)",
-        placeholderNiche: "Nische (z.B. Persönlichkeitsentwicklung)",
-        placeholderCountry: "Land (z.B. Deutschland)",
+        placeholderProduct: "Produkt (z.B. Abnehm-Supplements)",
+        placeholderNiche: "Nische (z.B. Gesundheit)",
+        placeholderCountry: "Land (z.B. Germany)",
         tooltipApiKey: "Geben Sie Ihren persönlichen Google Gemini API-Schlüssel ein. Dieser wird nur in Ihrem Browser gespeichert.",
         tooltipProduct: "Geben Sie den Namen oder eine kurze Beschreibung Ihres Produkts ein. Bsp.: '1:1 Coaching für Muslime'",
         tooltipNiche: "In welchem Marktsegment ist Ihr Produkt angesiedelt? Bsp.: 'Persönlichkeitsentwicklung'",
@@ -231,7 +278,7 @@ const translations = {
         loaderGeneratingContent: "Generiere Content-Ideen...",
         loaderGeneratingJourney: "Erstelle Customer Journey...",
         loaderGeneratingAngles: "Entwickle Marketing Angles...",
-        footerText: "Optimiert für präzise Marketingstrategien mit landestypischen Details und realistischen Schätzungen.",
+        footerText: "2025 Ibrahim Mohamed. Alle Rechte vorbehalten.",
         footerLink: "Mehr Tools entdecken",
         resultTitleAnalysis: "Zielgruppen-Analyse",
         resultEstimatedSize: "Berechnete Zielgruppen-Größe:",
@@ -271,9 +318,9 @@ const translations = {
         headerTitle: "Persona Generator Pro",
         headerSubtitle: "Generate realistic, country-specific target audience personas with AI and real population data – ideal for marketing and sales.",
         placeholderApiKey: "Your Gemini API Key",
-        placeholderProduct: "Product (e.g., 1:1 Coaching for Muslims)",
-        placeholderNiche: "Niche (e.g., Personal Development)",
-        placeholderCountry: "Country (e.g., Germany)",
+        placeholderProduct: "Product (e.g. Weight Loss Supplements)",
+        placeholderNiche: "Niche (e.g. Health)",
+        placeholderCountry: "Country (e.g. Germany)",
         tooltipApiKey: "Enter your personal Google Gemini API key. It is only stored in your browser.",
         tooltipProduct: "Enter the name or a short description of your product. E.g., '1:1 Coaching for Muslims'",
         tooltipNiche: "In which market segment is your product located? E.g., 'Personal Development'",
@@ -298,7 +345,7 @@ const translations = {
         loaderGeneratingContent: "Generating content ideas...",
         loaderGeneratingJourney: "Generating Customer Journey...",
         loaderGeneratingAngles: "Developing Marketing Angles...",
-        footerText: "Optimized for precise marketing strategies with country-specific details and realistic estimates.",
+        footerText: "2025 Ibrahim Mohamed. All Rights Reserved.",
         footerLink: "Discover more tools",
         resultTitleAnalysis: "Target Group Analysis",
         resultEstimatedSize: "Calculated Target Group Size:",
@@ -338,8 +385,8 @@ const translations = {
         headerTitle: "منشئ الشخصية الاحترافي",
         headerSubtitle: "أنشئ شخصيات جمهور مستهدف واقعية خاصة بكل بلد باستخدام الذكاء الاصطناعي وبيانات السكان الحقيقية - مثالية للتسويق والمبيعات.",
         placeholderApiKey: "مفتاح واجهة برمجة تطبيقات Gemini الخاص بك",
-        placeholderProduct: "المنتج (على سبيل المثال، تدريب 1:1 للمسلمين)",
-        placeholderNiche: "المجال (على سبيل المثال، تطوير الذات)",
+        placeholderProduct: "المنتج (على سبيل المثال، مكملات إنقاص الوزن)",
+        placeholderNiche: "المجال (على سبيل المثال، الصحة)",
         placeholderCountry: "الدولة (على سبيل المثال، ألمانيا)",
         tooltipApiKey: "أدخل مفتاح واجهة برمجة تطبيقات Google Gemini الشخصي. يتم تخزينه في متصفحك فقط.",
         tooltipProduct: "أدخل اسم منتجك أو وصفًا موجزًا له. مثال: 'تدريب 1:1 للمسلمين'",
@@ -365,7 +412,7 @@ const translations = {
         loaderGeneratingContent: "جارٍ إنشاء أفكار للمحتوى...",
         loaderGeneratingJourney: "جارٍ إنشاء رحلة العميل...",
         loaderGeneratingAngles: "جارٍ تطوير زوايا التسويق...",
-        footerText: "محسن لاستراتيجيات تسويق دقيقة مع تفاصيل خاصة بكل بلد وتقديرات واقعية.",
+        footerText: "2025 إبراهيم محمد. جميع الحقوق محفوظة.",
         footerLink: "اكتشف المزيد من الأدوات",
         resultTitleAnalysis: "تحليل المجموعة المستهدفة",
         resultEstimatedSize: "حجم المجموعة المستهدفة المحسوب:",
@@ -416,12 +463,12 @@ const setLanguage = (lang) => {
         if (t[key]) {
             if (element.hasAttribute('placeholder')) element.placeholder = t[key];
             else if (element.tagName === 'OPTION') element.textContent = t[key];
-             else element.textContent = t[key];
+            else element.textContent = t[key];
         }
     });
     localStorage.setItem('appLanguage', lang);
     updateButtonState(lang); 
-    if(currentPersonaData) {
+    if (currentPersonaData) {
         renderFullPersona(currentPersonaData, currentPopulation);
         if (el('journey-result').innerHTML) {
             const journeyData = JSON.parse(el('journey-result').dataset.json);
@@ -432,8 +479,8 @@ const setLanguage = (lang) => {
             renderAngles(anglesData);
         }
         if (el('content-ideas-result').innerHTML) {
-             const contentData = JSON.parse(el('content-ideas-result').dataset.json);
-             renderContentIdeas(contentData);
+            const contentData = JSON.parse(el('content-ideas-result').dataset.json);
+            renderContentIdeas(contentData);
         }
     }
 };
@@ -460,8 +507,6 @@ async function callGemini(prompt) {
     if (!apiKey) {
         throw new Error(translations[langCode].errorApiKeyMissing);
     }
-    // Geändert zu einem gültigen Modell (gemini-1.5-flash-latest), da das ursprüngliche Modell nicht existiert.
-    // Falls ein anderes Modell gewünscht ist, kann es angepasst werden.
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
     const payload = {
         contents: [{ parts: [{ text: prompt }] }],
@@ -536,13 +581,14 @@ async function analyzeMarketPotential() {
 function renderFullPersona(data, population){
     const langCode = localStorage.getItem('appLanguage') || 'de';
     const t = translations[langCode];
+    const isArabic = langCode === 'ar';
     const pct = population > 0 ? (data.zielgruppen_anzahl / population) * 100 : 0;
      el("result").innerHTML = `
-            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm"><h2 class="text-2xl font-bold mb-4 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>${t.resultTitleAnalysis}</h2><p><strong>${t.resultEstimatedSize}</strong> ${data.zielgruppen_anzahl.toLocaleString(langCode)}</p><p class="text-sm text-slate-600 mt-1"><strong>${t.resultJustification}</strong> ${data.begruendung_zielgruppengroesse}</p></div>
-            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>${t.resultTitleDetails}</h3><p><strong>${t.resultName}</strong> ${data.persona.Name}</p><p><strong>${t.resultAge}</strong> ${data.persona.Alter}</p><p><strong>${t.resultGender}</strong> ${data.persona.Geschlecht}</p><p><strong>${t.resultLocation}</strong> ${data.persona.Standort}</p><p><strong>${t.resultProfession}</strong> ${data.persona.Beruf}</p><div class="mt-2"><strong>${t.resultPainPoints}</strong><ul class="list-disc list-inside mt-1 text-slate-600">${data.persona.PainPoints.map(point => `<li>${point}</li>`).join('')}</ul></div></div>
-            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.353a1.76 1.76 0 013.417-.592V5.882zM15.5 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.353a1.76 1.76 0 013.417-.592V5.882z" /></svg>${t.resultTitleAdCopies}</h3><p class="mb-1"><strong>${t.resultLinkedIn}</strong> ${data.persona.AdCopies.LinkedIn}</p><p class="mb-1"><strong>${t.resultMeta}</strong> ${data.persona.AdCopies.Meta}</p><p><strong>${t.resultTikTokAd}</strong> ${data.persona.AdCopies.TikTok}</p></div>
-            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>${t.resultTitleKeywords}</h3><div class="mb-2"><strong>${t.resultInstagram}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.Instagram.join(', ')}</p></div><div class="mb-2"><strong>${t.resultTikTok}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.TikTok.join(', ')}</p></div><div class="mb-2"><strong>${t.resultFacebook}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.Facebook.join(', ')}</p></div><div><strong>${t.resultYouTube}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.YouTube.join(', ')}</p></div></div>
-            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 shadow-sm"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>${t.resultTitleComparison}</h3><div class="bg-slate-200 rounded-full h-5 overflow-hidden"><div class="bg-indigo-600 h-full rounded-full" style="width: ${pct.toFixed(2)}%"></div></div><div class="grid grid-cols-3 gap-4 text-center mt-3 text-sm"><div><div class="font-bold">${data.zielgruppen_anzahl.toLocaleString(langCode)}</div><div class="text-slate-500">${t.resultTargetGroup}</div></div><div><div class="font-bold">${population > 0 ? population.toLocaleString(langCode) : 'N/A'}</div><div class="text-slate-500">${t.resultPopulation}</div></div><div><div class="font-bold">${pct.toFixed(2)}%</div><div class="text-slate-500">${t.resultShare}</div></div></div></div>`;
+            <div class="persona-card bg-white rounded-xl p-6 mb-4 shadow-sm" dir="${isArabic ? 'rtl' : 'ltr'}"><h2 class="text-2xl font-bold mb-4 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>${t.resultTitleAnalysis}</h2><p><strong>${t.resultEstimatedSize}</strong> ${data.zielgruppen_anzahl.toLocaleString(langCode)}</p><p class="text-sm text-slate-600 mt-1"><strong>${t.resultJustification}</strong> ${data.begruendung_zielgruppengroesse}</p></div>
+            <div class="persona-card bg-white rounded-xl p-6 mb-4 shadow-sm" dir="${isArabic ? 'rtl' : 'ltr'}"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>${t.resultTitleDetails}</h3><p><strong>${t.resultName}</strong> ${data.persona.Name}</p><p><strong>${t.resultAge}</strong> ${data.persona.Alter}</p><p><strong>${t.resultGender}</strong> ${data.persona.Geschlecht}</p><p><strong>${t.resultLocation}</strong> ${data.persona.Standort}</p><p><strong>${t.resultProfession}</strong> ${data.persona.Beruf}</p><div class="mt-2"><strong>${t.resultPainPoints}</strong><ul class="list-disc list-inside mt-1 text-slate-600">${data.persona.PainPoints.map(point => `<li>${point}</li>`).join('')}</ul></div></div>
+            <div class="persona-card bg-white rounded-xl p-6 mb-4 shadow-sm" dir="${isArabic ? 'rtl' : 'ltr'}"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.353a1.76 1.76 0 013.417-.592V5.882zM15.5 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.353a1.76 1.76 0 013.417-.592V5.882z" /></svg>${t.resultTitleAdCopies}</h3><p class="mb-1"><strong>${t.resultLinkedIn}</strong> ${data.persona.AdCopies.LinkedIn}</p><p class="mb-1"><strong>${t.resultMeta}</strong> ${data.persona.AdCopies.Meta}</p><p><strong>${t.resultTikTokAd}</strong> ${data.persona.AdCopies.TikTok}</p></div>
+            <div class="persona-card bg-white rounded-xl p-6 mb-4 shadow-sm" dir="${isArabic ? 'rtl' : 'ltr'}"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>${t.resultTitleKeywords}</h3><div class="mb-2"><strong>${t.resultInstagram}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.Instagram.join(', ')}</p></div><div class="mb-2"><strong>${t.resultTikTok}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.TikTok.join(', ')}</p></div><div class="mb-2"><strong>${t.resultFacebook}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.Facebook.join(', ')}</p></div><div><strong>${t.resultYouTube}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.YouTube.join(', ')}</p></div></div>
+            <div class="persona-card bg-white rounded-xl p-6 shadow-sm" dir="${isArabic ? 'rtl' : 'ltr'}"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>${t.resultTitleComparison}</h3><div class="bg-slate-200 rounded-full h-5 overflow-hidden"><div class="bg-indigo-600 h-full rounded-full" style="width: ${pct.toFixed(2)}%"></div></div><div class="grid grid-cols-3 gap-4 text-center mt-3 text-sm"><div><div class="font-bold">${data.zielgruppen_anzahl.toLocaleString(langCode)}</div><div class="text-slate-500">${t.resultTargetGroup}</div></div><div><div class="font-bold">${population > 0 ? population.toLocaleString(langCode) : 'N/A'}</div><div class="text-slate-500">${t.resultPopulation}</div></div><div><div class="font-bold">${pct.toFixed(2)}%</div><div class="text-slate-500">${t.resultShare}</div></div></div></div>`;
 }
 
 async function generateFullPersona() {
@@ -563,7 +609,7 @@ async function generateFullPersona() {
     try {
         currentPopulation = await fetchPopulation(country);
         const targetAudienceSize = calculateTargetAudience(currentPopulation, potential);
-        const prompt = `Analyse: Erstelle eine Persona für ein Produkt mit dem Marktpotenzial "${marketScale}".\n- Land: ${country}\n- Produkt: ${product}\n- Nische: ${niche}\n- Sprache: ${language}\n- Vorgegebene Zielgruppengröße: ${targetAudienceSize}\n\nAnweisungen:\n1.  **Persona-Qualität:** Die Persona muss die Merkmale des Marktpotenzials widerspiegeln.\n    -   Für 'Niche': Erstelle einen Spezialisten, Early Adopter oder Enthusiasten. Beruf, Pain Points und Interessen müssen hochspezifisch sein.\n    -   Für 'Standard': Erstelle einen informierten Käufer in einem etablierten Markt. Die Pain Points sind bekannt, aber breiter als in der Nische.\n    -   Für 'Mass Market': Erstelle einen Durchschnittsverbraucher. Die Pain Points müssen alltäglich und weit verbreitet sein (z.B. Zeit, Geld, soziale Anerkennung). Die demografischen Daten sollten den Durchschnitt des Landes widerspiegeln.\n2.  **Begründung:** Gib eine logische Begründung, warum diese spezifische Persona zur vorgegebenen Zielgruppengröße und zum Marktpotenzial passt.\n3.  **Inhalte:** Erstelle passende Ad Copies, Hashtags und Keywords für alle Plattformen, die exakt auf die erstellte Persona und ihre spezifischen Merkmale zugeschnitten sind.\n4.  **Sprache:** Die gesamte Antwort muss in der Zielsprache (${language}) sein.\n\nRückgabe NUR als JSON-Objekt im folgenden Format (die "zielgruppen_anzahl" muss exakt ${targetAudienceSize} sein):\n{ "zielgruppen_anzahl": ${targetAudienceSize}, "begruendung_zielgruppengroesse": "string", "persona": { "Name": "string", "Alter": "string", "Geschlecht": "string", "Standort": "string", "Beruf": "string", "PainPoints": ["string"], "AdCopies": { "LinkedIn": "string", "Meta": "string", "TikTok": "string" }}, "socialMediaKeywords": { "Instagram": ["string"], "TikTok": ["string"], "Facebook": ["string"], "YouTube": ["string"] }}`;
+        const prompt = `Analyse: Erstelle eine Persona für ein Produkt mit dem Marktpotenzial "${marketScale}".\n- Land: ${country}\n- Produkt: ${product}\n- Nische: ${niche}\n- Sprache: ${language}\n- Vorgegebene Zielgruppengröße: ${targetAudienceSize}\n\nAnweisungen:\n1.  **Persona-Qualität:** Die Persona muss die Merkmale des Marktpotenzials widerspiegeln.\n    -   Für 'Niche': Erstelle einen Spezialisten, Early Adopter oder Enthusiasten. Beruf, Pain Points und Interessen müssen hochspezifisch sein.\n    -   Für 'Standard': Erstelle einen informierten Käufer in einem etablierten Markt. Die Pain Points sind bekannt, aber breiter als in der Niche.\n    -   Für 'Mass Market': Erstelle einen Durchschnittsverbraucher. Die Pain Points müssen alltäglich und weit verbreitet sein (z. B. Zeit, Geld, soziale Anerkennung). Die demografischen Daten sollten den Durchschnitt des Landes widerspiegeln.\n2.  **Begründung:** Gib eine logische Begründung, warum diese spezifische Persona zur vorgegebenen Zielgruppengröße und zum Marktpotenzial passt, ausschließlich in der Sprache ${language}.\n3.  **Inhalte:** Erstelle passende Ad Copies, Hashtags und Keywords für alle Plattformen, die exakt auf die erstellte Persona und ihre spezifischen Merkmale zugeschnitten sind, ausschließlich in ${language}.\n4.  **Sprache:** Die gesamte Antwort muss in der Zielsprache (${language}) sein.\n\nRückgabe NUR als JSON-Objekt im folgenden Format (die "zielgruppen_anzahl" muss exakt ${targetAudienceSize} sein):\n{ "zielgruppen_anzahl": ${targetAudienceSize}, "begruendung_zielgruppengroesse": "string", "persona": { "Name": "string", "Alter": "string", "Geschlecht": "string", "Standort": "string", "Beruf": "string", "PainPoints": ["string"], "AdCopies": { "LinkedIn": "string", "Meta": "string", "TikTok": "string" }}, "socialMediaKeywords": { "Instagram": ["string"], "TikTok": ["string"], "Facebook": ["string"], "YouTube": ["string"] }}`;
         const raw = await callGemini(prompt);
         currentPersonaData = JSON.parse(raw);
         
@@ -588,7 +634,7 @@ function renderContentIdeas(data) {
     const renderIdea = (item) => `<div class="mb-2"><p class="font-semibold text-slate-800">${item.title}</p><p class="text-xs text-slate-500">${item.description}</p></div>`;
 
     el('content-ideas-result').innerHTML = `
-        <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm">
+        <div class="persona-card bg-white rounded-xl p-6 mb-4 shadow-sm" dir="${langCode === 'ar' ? 'rtl' : 'ltr'}">
             <h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0" /></svg>${t.resultTitleContentIdeas}</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div><h4 class="font-bold text-slate-800 mb-2">${t.resultBlog}</h4><div class="space-y-3">${ideas.blog.map(renderIdea).join('')}</div></div>
@@ -630,7 +676,7 @@ function renderJourney(data) {
     const renderStage = (stage) => stage.map(item => `<div class="mb-2"><p class="font-semibold text-slate-800">${item.channel}</p><p class="text-xs text-slate-500">${item.description}</p></div>`).join('');
     
     el('journey-result').innerHTML = `
-        <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm">
+        <div class="persona-card bg-white rounded-xl p-6 mb-4 shadow-sm" dir="${langCode === 'ar' ? 'rtl' : 'ltr'}">
             <h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l4 4m0 0l-4 4m4-4H3" /></svg>${t.resultTitleJourney}</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div><h4 class="font-bold text-slate-800 mb-2">${t.journeyAwareness}</h4><div class="space-y-3">${renderStage(journey.awareness)}</div></div>
@@ -671,7 +717,7 @@ function renderAngles(data){
     const angles = data.marketingAngles;
     
     el('angles-result').innerHTML = `
-        <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm">
+        <div class="persona-card bg-white rounded-xl p-6 mb-4 shadow-sm" dir="${langCode === 'ar' ? 'rtl' : 'ltr'}">
             <h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2z" /></svg>${t.resultTitleAngles}</h3>
             <div class="space-y-4">
                 ${angles.map(angle => `<div class="p-3 bg-slate-50 rounded-md"><p class="font-semibold text-slate-800">${angle.angle_name}</p><p class="text-sm text-slate-600">${angle.hook_text}</p></div>`).join('')}
