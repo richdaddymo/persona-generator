@@ -1,1 +1,840 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Persona Generator Pro (mit Gemini API)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+    body {
+        font-family: 'Inter', sans-serif;
+        font-size: clamp(14px, 2.5vw, 16px); /* Responsive Basis-Schriftgröße */
+    }
+    .loader {
+        border: 4px solid #e5e7eb;
+        border-top: 4px solid #4f46e5;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 
+        0% { transform: rotate(0deg); } 
+        100% { transform: rotate(360deg); } 
+    }
+    .header-gradient { 
+        background: linear-gradient(135deg, #1f2937, #111827);
+    }
+    .btn-animate { 
+        transition: all 0.2s ease-in-out; 
+    }
+    .btn-animate:hover { 
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .persona-card { 
+        transition: all 0.2s ease-in-out;
+        border: 1px solid #e5e7eb;
+    }
+    .section-icon {
+        width: clamp(1.25rem, 3vw, 1.75rem); /* Responsive Icon-Größe */
+        height: clamp(1.25rem, 3vw, 1.75rem);
+        margin-right: 0.75rem;
+        color: #4f46e5;
+    }
+    .tooltip-container {
+        position: relative;
+        display: inline-block;
+    }
+    .tooltip-icon {
+        cursor: pointer;
+        margin-left: 8px;
+        color: #9ca3af;
+    }
+    .tooltip-text {
+        visibility: hidden;
+        width: clamp(180px, 40vw, 220px); /* Responsive Tooltip-Breite */
+        background-color: #1f2937;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 10;
+        bottom: 125%;
+        left: 50%;
+        margin-left: calc(clamp(180px, 40vw, 220px) / -2); /* Zentrierung anpassen */
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: clamp(0.65rem, 2vw, 0.75rem); /* Responsive Schriftgröße */
+        line-height: 1.25;
+    }
+    .tooltip-container:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
 
+    /* Responsive Anpassungen */
+    @media (max-width: 640px) {
+        body {
+            padding: 1rem; /* Weniger Padding auf Mobile */
+        }
+        .max-w-4xl {
+            max-width: 100%; /* Volle Breite auf Mobile */
+            padding: 1rem; /* Reduziertes Padding */
+        }
+        .header-gradient h1 {
+            font-size: clamp(1.5rem, 6vw, 2rem); /* Kleinere Überschrift */
+        }
+        .header-gradient p {
+            font-size: clamp(0.875rem, 3.5vw, 1rem); /* Kleinere Unterüberschrift */
+        }
+        .btn-animate {
+            font-size: clamp(0.75rem, 3vw, 0.875rem); /* Kleinere Button-Schrift */
+            padding: 0.75rem; /* Reduziertes Padding für Buttons */
+        }
+        .flex-col.sm\\:flex-row {
+            flex-direction: column !important; /* Gestapelt auf Mobile */
+        }
+        #strategy-buttons {
+            flex-direction: column !important; /* Gestapelte Strategie-Buttons */
+            gap: 0.5rem; /* Weniger Abstand */
+        }
+        #export-container {
+            display: flex;
+            flex-direction: column; /* Export-Container gestapelt */
+            gap: 0.5rem;
+        }
+        #export-format {
+            border-radius: 0.5rem; /* Eigene Rundung für Mobile */
+        }
+        #btnExport {
+            border-radius: 0.5rem; /* Eigene Rundung für Mobile */
+        }
+        input, select {
+            font-size: clamp(0.75rem, 3vw, 0.875rem); /* Kleinere Eingabefelder */
+            padding: 0.75rem; /* Reduziertes Padding */
+        }
+        .persona-card h2, .persona-card h3 {
+            font-size: clamp(1.125rem, 4vw, 1.5rem); /* Responsive Überschriften */
+        }
+        .persona-card p, .persona-card li {
+            font-size: clamp(0.75rem, 3vw, 0.875rem); /* Responsive Textgröße */
+        }
+    }
+</style>
+</head>
+<body class="bg-slate-100 p-4 sm:p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8 relative">
+        
+        <div class="absolute top-6 right-6 text-left z-20">
+            <button id="lang-switcher-btn" class="p-2 bg-white rounded-full text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 btn-animate">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h10a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.905 11A9 9 0 005.024 21M16.095 11A9 9 0 0118.976 21M12 21V11" /></svg>
+            </button>
+            <div id="lang-switcher-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" tabindex="-1">
+                <div class="py-1" role="none">
+                    <a href="#" class="text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100" role="menuitem" tabindex="-1" data-lang="de">Deutsch</a>
+                    <a href="#" class="text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100" role="menuitem" tabindex="-1" data-lang="en">English</a>
+                    <a href="#" class="text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100" role="menuitem" tabindex="-1" data-lang="ar">العربية</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-gradient text-white p-8 rounded-xl mb-8 text-center">
+            <h1 data-key="headerTitle" class="text-4xl font-extrabold mb-2 tracking-tight">Persona Generator Pro</h1>
+            <p data-key="headerSubtitle" class="text-lg opacity-80 max-w-2xl mx-auto">Generieren Sie realistische, landestypische Zielgruppen-Personas mit KI und echten Bevölkerungsdaten – ideal für Marketing und Vertrieb.</p>
+        </div>
+        
+        <div id="input-section" class="grid gap-4 mb-6">
+            <div class="relative"><label class="flex items-center"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.25H0v-2.25H-2.25A2.25 2.25 0 010 15V9a2.25 2.25 0 012.25-2.25h1.5M12 4.5h3.75m-3.75 0a3 3 0 00-3 3m0 0h3.75" /></svg></div><input id="gemini-api-key" type="password" data-key="placeholderApiKey" class="w-full pl-10 border-slate-300 rounded-md p-3 bg-slate-50 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Ihr Gemini API-Schlüssel"><div class="tooltip-container"><span class="tooltip-icon">ⓘ</span><span class="tooltip-text" data-key="tooltipApiKey">Geben Sie Ihren persönlichen Google Gemini API-Schlüssel ein. Dieser wird nur in Ihrem Browser gespeichert.</span></div></label></div>
+            <div class="relative"><label class="flex items-center"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4M4 7v10l8 4" /></svg></div><input id="product" data-key="placeholderProduct" class="w-full pl-10 border-slate-300 rounded-md p-3 bg-slate-50 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Produkt (z.B. Abnehm-Supplements)"><div class="tooltip-container"><span class="tooltip-icon">ⓘ</span><span class="tooltip-text" data-key="tooltipProduct">Geben Sie den Namen oder eine kurze Beschreibung Ihres Produkts ein. Bsp.: '1:1 Coaching für Muslime'</span></div></label></div>
+            <div class="relative"><label class="flex items-center"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></div><input id="niche" data-key="placeholderNiche" class="w-full pl-10 border-slate-300 rounded-md p-3 bg-slate-50 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Nische (z.B. Gesundheit)"><div class="tooltip-container"><span class="tooltip-icon">ⓘ</span><span class="tooltip-text" data-key="tooltipNiche">In welchem Marktsegment ist Ihr Produkt angesiedelt? Bsp.: 'Persönlichkeitsentwicklung'</span></div></label></div>
+            <div class="relative"><label class="flex items-center"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h10a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.905 11A9 9 0 005.024 21M16.095 11A9 9 0 0118.976 21M12 21V11" /></svg></div><input id="country" data-key="placeholderCountry" class="w-full pl-10 border-slate-300 rounded-md p-3 bg-slate-50 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Land (z.B. Germany)" autocomplete="off"><div class="tooltip-container"><span class="tooltip-icon">ⓘ</span><span class="tooltip-text" data-key="tooltipCountry">Für welches Land soll die Persona erstellt werden? Beginnen Sie zu tippen für Vorschläge.</span></div></label><div id="country-suggestions" class="absolute z-10 w-full bg-white border border-slate-300 rounded-md mt-1 max-h-60 overflow-y-auto hidden shadow-lg"></div></div>
+        </div>
+            
+        <div id="potential-section" class="relative pt-2 mb-6 hidden">
+            <label id="market-potential-label" for="market-potential" class="block text-sm font-medium text-slate-700 mb-2 flex items-center"></label>
+            <div id="potential-reasoning" class="text-sm p-3 bg-indigo-50 border border-indigo-200 text-indigo-800 rounded-md mb-3"></div>
+            <input id="market-potential" type="range" min="1" max="3" value="2" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+            <div class="flex justify-between text-xs text-slate-500 mt-1"><span data-key="potentialNiche">Nische</span><span data-key="potentialStandard">Standard</span><span data-key="potentialMass">Massenmarkt</span></div>
+        </div>
+
+       <div class="flex flex-col sm:flex-row gap-3 flex-wrap">
+    <button id="btnGen" class="flex-grow bg-slate-800 text-white p-3 rounded-lg font-semibold hover:bg-slate-700 btn-animate"></button>
+    <div id="export-container" class="hidden flex-shrink-0 flex flex-col sm:flex-row gap-3">
+        <select id="export-format" class="border-slate-300 rounded-lg sm:rounded-l-lg p-3 bg-slate-50 focus:ring-green-500 focus:border-green-500 transition appearance-none">
+            <option value="html" data-key="exportAsHTML">HTML</option>
+            <option value="doc" data-key="exportAsDOC">Word (.doc)</option>
+        </select>
+        <button id="btnExport" data-key="btnExport" class="px-4 bg-green-600 text-white p-3 rounded-lg sm:rounded-r-lg font-semibold hover:bg-green-700 btn-animate">Export</button>
+    </div>
+    <div id="strategy-buttons" class="hidden flex flex-col sm:flex-row gap-3">
+        <button id="btnJourney" data-key="btnJourney" class="px-4 bg-sky-600 text-white p-3 rounded-lg font-semibold hover:bg-sky-700 btn-animate">Customer Journey</button>
+        <button id="btnAngles" data-key="btnAngles" class="px-4 bg-amber-600 text-white p-3 rounded-lg font-semibold hover:bg-amber-700 btn-animate">Marketing Angles</button>
+        <button id="btnContent" data-key="btnContentIdeas" class="px-4 bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 btn-animate">✨ Content-Ideen</button>
+    </div>
+    <button id="btnClear" data-key="btnReset" class="px-4 bg-slate-500 text-white p-3 rounded-lg font-semibold hover:bg-slate-600 btn-animate">Reset</button>
+</div>
+        
+        <div id="error" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden"></div>
+        <div id="loader" class="hidden flex-col items-center justify-center mt-6"><div class="loader"></div><p id="loader-text" class="mt-2 text-sm text-slate-500"></p></div>
+        <div id="result" class="mt-6 hidden"></div>
+        <div id="journey-result" class="mt-6 hidden"></div>
+        <div id="angles-result" class="mt-6 hidden"></div>
+        <div id="content-ideas-result" class="mt-6 hidden"></div>
+
+        <div class="mt-8 text-center text-sm text-slate-500 border-t pt-6">
+            <p data-key="footerText">Optimiert für präzise Marketingstrategien mit landestypischen Details und realistischen Schätzungen. <a href="#" data-key="footerLink" class="text-indigo-600 hover:underline">Mehr Tools entdecken</a>.</p>
+        </div>
+    </div>
+<script>
+const el = id => document.getElementById(id);
+const show = (id, state) => el(id).style.display = state ? "flex" : "none";
+const showBlock = (id, state) => el(id).style.display = state ? "block" : "none";
+const showError = (message) => { el('error').textContent = message; showBlock('error', true); };
+const hideError = () => { showBlock('error', false); };
+const setLoaderText = (text) => { el('loader-text').textContent = text; };
+
+const translations = {
+    de: {
+        headerTitle: "Persona Generator Pro",
+        headerSubtitle: "Generieren Sie realistische, landestypische Zielgruppen-Personas mit KI und echten Bevölkerungsdaten – ideal für Marketing und Vertrieb.",
+        placeholderApiKey: "Ihr Gemini API-Schlüssel",
+        placeholderProduct: "Produkt (z.B. 1:1 Coaching für Muslime)",
+        placeholderNiche: "Nische (z.B. Persönlichkeitsentwicklung)",
+        placeholderCountry: "Land (z.B. Deutschland)",
+        tooltipApiKey: "Geben Sie Ihren persönlichen Google Gemini API-Schlüssel ein. Dieser wird nur in Ihrem Browser gespeichert.",
+        tooltipProduct: "Geben Sie den Namen oder eine kurze Beschreibung Ihres Produkts ein. Bsp.: '1:1 Coaching für Muslime'",
+        tooltipNiche: "In welchem Marktsegment ist Ihr Produkt angesiedelt? Bsp.: 'Persönlichkeitsentwicklung'",
+        tooltipCountry: "Für welches Land soll die Persona erstellt werden? Beginnen Sie zu tippen für Vorschläge.",
+        marketPotentialLabel: "Marktpotenzial (KI-Vorschlag)",
+        potentialNiche: "Nische",
+        potentialStandard: "Standard",
+        potentialMass: "Massenmarkt",
+        btnAnalyze: "Marktpotenzial analysieren",
+        btnConfirmGenerate: "Bestätigen & Persona erstellen",
+        btnReset: "Reset",
+        btnExport: "Exportieren",
+        btnContentIdeas: "✨ Content-Ideen",
+        btnJourney: "Customer Journey",
+        btnAngles: "Marketing Angles",
+        exportAsHTML: "HTML",
+        exportAsDOC: "Word (.doc)",
+        errorAllFields: "Bitte alle Felder ausfüllen!",
+        errorApiKeyMissing: "Bitte geben Sie Ihren Gemini API-Schlüssel ein.",
+        loaderAnalyzing: "Analysiere Markt...",
+        loaderGeneratingPersona: "Generiere Persona...",
+        loaderGeneratingContent: "Generiere Content-Ideen...",
+        loaderGeneratingJourney: "Erstelle Customer Journey...",
+        loaderGeneratingAngles: "Entwickle Marketing Angles...",
+        footerText: "Optimiert für präzise Marketingstrategien mit landestypischen Details und realistischen Schätzungen.",
+        footerLink: "Mehr Tools entdecken",
+        resultTitleAnalysis: "Zielgruppen-Analyse",
+        resultEstimatedSize: "Berechnete Zielgruppen-Größe:",
+        resultJustification: "Begründung:",
+        resultTitleDetails: "Persona Details",
+        resultName: "Name:",
+        resultAge: "Alter:",
+        resultGender: "Geschlecht:",
+        resultLocation: "Standort:",
+        resultProfession: "Beruf:",
+        resultPainPoints: "Pain Points:",
+        resultTitleAdCopies: "Werbetexte",
+        resultLinkedIn: "LinkedIn:",
+        resultMeta: "Meta (Facebook/Instagram):",
+        resultTikTokAd: "TikTok:",
+        resultTitleKeywords: "Hashtags & Keywords",
+        resultInstagram: "Instagram:",
+        resultTikTok: "TikTok:",
+        resultFacebook: "Facebook:",
+        resultYouTube: "YouTube:",
+        resultTitleComparison: "Zielgruppen-Größe vs. Bevölkerung",
+        resultTargetGroup: "Zielgruppe",
+        resultPopulation: "Bevölkerung",
+        resultShare: "Anteil",
+        resultTitleContentIdeas: "Content-Ideen",
+        resultBlog: "Blog / Artikel",
+        resultYouTubeVideos: "YouTube Videos",
+        resultTikTokVideos: "TikTok Videos",
+        resultTitleJourney: "Customer Journey Map",
+        journeyAwareness: "Awareness (Bewusstsein)",
+        journeyConsideration: "Consideration (Erwägung)",
+        journeyConversion: "Conversion (Kauf)",
+        resultTitleAngles: "Marketing Angles & Hooks",
+        outputLanguageName: "Deutsch"
+    },
+    en: {
+        headerTitle: "Persona Generator Pro",
+        headerSubtitle: "Generate realistic, country-specific target audience personas with AI and real population data – ideal for marketing and sales.",
+        placeholderApiKey: "Your Gemini API Key",
+        placeholderProduct: "Product (e.g., 1:1 Coaching for Muslims)",
+        placeholderNiche: "Niche (e.g., Personal Development)",
+        placeholderCountry: "Country (e.g., Germany)",
+        tooltipApiKey: "Enter your personal Google Gemini API key. It is only stored in your browser.",
+        tooltipProduct: "Enter the name or a short description of your product. E.g., '1:1 Coaching for Muslims'",
+        tooltipNiche: "In which market segment is your product located? E.g., 'Personal Development'",
+        tooltipCountry: "For which country should the persona be created? Start typing for suggestions.",
+        marketPotentialLabel: "Market Potential (AI Suggestion)",
+        potentialNiche: "Niche",
+        potentialStandard: "Standard",
+        potentialMass: "Mass Market",
+        btnAnalyze: "Analyze Market Potential",
+        btnConfirmGenerate: "Confirm & Create Persona",
+        btnReset: "Reset",
+        btnExport: "Export",
+        btnContentIdeas: "✨ Content Ideas",
+        btnJourney: "Customer Journey",
+        btnAngles: "Marketing Angles",
+        exportAsHTML: "HTML",
+        exportAsDOC: "Word (.doc)",
+        errorAllFields: "Please fill out all fields!",
+        errorApiKeyMissing: "Please enter your Gemini API Key.",
+        loaderAnalyzing: "Analyzing market...",
+        loaderGeneratingPersona: "Generating persona...",
+        loaderGeneratingContent: "Generating content ideas...",
+        loaderGeneratingJourney: "Generating Customer Journey...",
+        loaderGeneratingAngles: "Developing Marketing Angles...",
+        footerText: "Optimized for precise marketing strategies with country-specific details and realistic estimates.",
+        footerLink: "Discover more tools",
+        resultTitleAnalysis: "Target Group Analysis",
+        resultEstimatedSize: "Calculated Target Group Size:",
+        resultJustification: "Justification:",
+        resultTitleDetails: "Persona Details",
+        resultName: "Name:",
+        resultAge: "Age:",
+        resultGender: "Gender:",
+        resultLocation: "Location:",
+        resultProfession: "Profession:",
+        resultPainPoints: "Pain Points:",
+        resultTitleAdCopies: "Ad Copies",
+        resultLinkedIn: "LinkedIn:",
+        resultMeta: "Meta (Facebook/Instagram):",
+        resultTikTokAd: "TikTok:",
+        resultTitleKeywords: "Hashtags & Keywords",
+        resultInstagram: "Instagram:",
+        resultTikTok: "TikTok:",
+        resultFacebook: "Facebook:",
+        resultYouTube: "YouTube:",
+        resultTitleComparison: "Target Group Size vs. Population",
+        resultTargetGroup: "Target Group",
+        resultPopulation: "Population",
+        resultShare: "Share",
+        resultTitleContentIdeas: "Content Ideas",
+        resultBlog: "Blog / Articles",
+        resultYouTubeVideos: "YouTube Videos",
+        resultTikTokVideos: "TikTok Videos",
+        resultTitleJourney: "Customer Journey Map",
+        journeyAwareness: "Awareness",
+        journeyConsideration: "Consideration",
+        journeyConversion: "Conversion",
+        resultTitleAngles: "Marketing Angles & Hooks",
+        outputLanguageName: "English"
+    },
+    ar: {
+        headerTitle: "منشئ الشخصية الاحترافي",
+        headerSubtitle: "أنشئ شخصيات جمهور مستهدف واقعية خاصة بكل بلد باستخدام الذكاء الاصطناعي وبيانات السكان الحقيقية - مثالية للتسويق والمبيعات.",
+        placeholderApiKey: "مفتاح واجهة برمجة تطبيقات Gemini الخاص بك",
+        placeholderProduct: "المنتج (على سبيل المثال، تدريب 1:1 للمسلمين)",
+        placeholderNiche: "المجال (على سبيل المثال، تطوير الذات)",
+        placeholderCountry: "الدولة (على سبيل المثال، ألمانيا)",
+        tooltipApiKey: "أدخل مفتاح واجهة برمجة تطبيقات Google Gemini الشخصي. يتم تخزينه في متصفحك فقط.",
+        tooltipProduct: "أدخل اسم منتجك أو وصفًا موجزًا له. مثال: 'تدريب 1:1 للمسلمين'",
+        tooltipNiche: "في أي قطاع من السوق يقع منتجك؟ مثال: 'تطوير الذات'",
+        tooltipCountry: "لأي بلد يجب إنشاء الشخصية؟ ابدأ بالكتابة للحصول على اقتراحات.",
+        marketPotentialLabel: "إمكانات السوق (اقتراح الذكاء الاصطناعي)",
+        potentialNiche: "متخصص",
+        potentialStandard: "عادي",
+        potentialMass: "سوق واسع",
+        btnAnalyze: "تحليل إمكانات السوق",
+        btnConfirmGenerate: "تأكيد وإنشاء الشخصية",
+        btnReset: "إعادة تعيين",
+        btnExport: "تصدير",
+        btnContentIdeas: "✨ أفكار للمحتوى",
+        btnJourney: "رحلة العميل",
+        btnAngles: "زوايا التسويق",
+        exportAsHTML: "HTML",
+        exportAsDOC: "Word (.doc)",
+        errorAllFields: "يرجى ملء جميع الحقول!",
+        errorApiKeyMissing: "يرجى إدخال مفتاح Gemini API الخاص بك.",
+        loaderAnalyzing: "جارٍ تحليل السوق...",
+        loaderGeneratingPersona: "جارٍ إنشاء الشخصية...",
+        loaderGeneratingContent: "جارٍ إنشاء أفكار للمحتوى...",
+        loaderGeneratingJourney: "جارٍ إنشاء رحلة العميل...",
+        loaderGeneratingAngles: "جارٍ تطوير زوايا التسويق...",
+        footerText: "محسن لاستراتيجيات تسويق دقيقة مع تفاصيل خاصة بكل بلد وتقديرات واقعية.",
+        footerLink: "اكتشف المزيد من الأدوات",
+        resultTitleAnalysis: "تحليل المجموعة المستهدفة",
+        resultEstimatedSize: "حجم المجموعة المستهدفة المحسوب:",
+        resultJustification: "مبررات:",
+        resultTitleDetails: "تفاصيل الشخصية",
+        resultName: "الاسم:",
+        resultAge: "العمر:",
+        resultGender: "الجنس:",
+        resultLocation: "الموقع:",
+        resultProfession: "المهنة:",
+        resultPainPoints: "نقاط الألم:",
+        resultTitleAdCopies: "نصوص الإعلانات",
+        resultLinkedIn: "لينكد إن:",
+        resultMeta: "ميتا (فيسبوك/انستغرام):",
+        resultTikTokAd: "تيك توك:",
+        resultTitleKeywords: "هاشتاجات وكلمات مفتاحية",
+        resultInstagram: "انستغرام:",
+        resultTikTok: "تيك توك:",
+        resultFacebook: "فيسبوك:",
+        resultYouTube: "يوتيوب:",
+        resultTitleComparison: "حجم المجموعة المستهدفة مقابل السكان",
+        resultTargetGroup: "المجموعة المستهدفة",
+        resultPopulation: "السكان",
+        resultShare: "النسبة",
+        resultTitleContentIdeas: "أفكار للمحتوى",
+        resultBlog: "مدونة / مقالات",
+        resultYouTubeVideos: "فيديوهات يوتيوب",
+        resultTikTokVideos: "فيديوهات تيك توك",
+        resultTitleJourney: "خريطة رحلة العميل",
+        journeyAwareness: "الوعي",
+        journeyConsideration: "الاعتبار",
+        journeyConversion: "التحويل",
+        resultTitleAngles: "زوايا التسويق والخطافات",
+        outputLanguageName: "العربية"
+    }
+};
+
+let appState = 'initial'; // 'initial', 'analyzed', 'generated'
+let currentPersonaData = null;
+let currentPopulation = 0;
+
+const setLanguage = (lang) => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    const t = translations[lang];
+    document.querySelectorAll('[data-key]').forEach(element => {
+        const key = element.getAttribute('data-key');
+        if (t[key]) {
+            if (element.hasAttribute('placeholder')) element.placeholder = t[key];
+            else if (element.tagName === 'OPTION') element.textContent = t[key];
+             else element.textContent = t[key];
+        }
+    });
+    localStorage.setItem('appLanguage', lang);
+    updateButtonState(lang); 
+    if(currentPersonaData) {
+        renderFullPersona(currentPersonaData, currentPopulation);
+        if (el('journey-result').innerHTML) {
+            const journeyData = JSON.parse(el('journey-result').dataset.json);
+            renderJourney(journeyData);
+        }
+        if (el('angles-result').innerHTML) {
+            const anglesData = JSON.parse(el('angles-result').dataset.json);
+            renderAngles(anglesData);
+        }
+        if (el('content-ideas-result').innerHTML) {
+             const contentData = JSON.parse(el('content-ideas-result').dataset.json);
+             renderContentIdeas(contentData);
+        }
+    }
+};
+
+const countryCodes = {"aruba":"AW","afghanistan":"AF","angola":"AO","albania":"AL","andorra":"AD","united arab emirates":"AE","argentina":"AR","armenia":"AM","american samoa":"AS","antigua and barbuda":"AG","australia":"AU","austria":"AT","österreich":"AT","azerbaijan":"AZ","burundi":"BI","belgium":"BE","belgien":"BE","benin":"BJ","burkina faso":"BF","bangladesh":"BD","bulgaria":"BG","bahrain":"BH","bahamas, the":"BS","bosnia and herzegovina":"BA","belarus":"BY","belize":"BZ","bermuda":"BM","bolivia":"BO","brazil":"BR","brasilien":"BR","barbados":"BB","brunei darussalam":"BN","bhutan":"BT","botswana":"BW","central african republic":"CF","canada":"CA","kanada":"CA","switzerland":"CH","schweiz":"CH","channel islands":"JG","chile":"CL","china":"CN","cote d'ivoire":"CI","cameroon":"CM","congo, dem. rep.":"CD","congo, rep.":"CG","colombia":"CO","comoros":"KM","cabo verde":"CV","costa rica":"CR","cuba":"CU","curacao":"CW","cayman islands":"KY","cyprus":"CY","czechia":"CZ","tschechien":"CZ","germany":"DE","deutschland":"DE","djibouti":"DJ","dominica":"DM","denmark":"DK","dänemark":"DK","dominican republic":"DO","algeria":"DZ","ecuador":"EC","egypt, arab rep.":"EG","egypt":"EG","ägypten":"EG","aegypten":"EG","eritrea":"ER","spain":"ES","spanien":"ES","estonia":"EE","ethiopia":"ET","finland":"FI","finnland":"FI","fiji":"FJ","france":"FR","frankreich":"FR","faroe islands":"FO","micronesia, fed. sts.":"FM","gabon":"GA","united kingdom":"GB","grossbritannien":"GB","uk":"GB","georgia":"GE","ghana":"GH","gibraltar":"GI","guinea":"GN","gambia, the":"GM","guinea-bissau":"GW","equatorial guinea":"GQ","greece":"GR","griechenland":"GR","grenada":"GD","greenland":"GL","guatemala":"GT","guam":"GU","guyana":"GY","honduras":"HN","croatia":"HR","haiti":"HT","hungary":"HU","indonesia":"ID","isle of man":"IM","india":"IN","ireland":"IE","iran, islamic rep.":"IR","iraq":"IQ","iceland":"IS","israel":"IL","italy":"IT","italien":"IT","jamaica":"JM","jordan":"JO","japan":"JP","kazakhstan":"KZ","kenya":"KE","kyrgyz republic":"KG","cambodia":"KH","kiribati":"KI","st. kitts and nevis":"KN","korea, rep.":"KR","kuwait":"KW","lao pdr":"LA","lebanon":"LB","liberia":"LR","libya":"LY","st. lucia":"LC","liechtenstein":"LI","sri lanka":"LK","lesotho":"LS","lithuania":"LT","luxembourg":"LU","latvia":"LV","macao sar, china":"MO","st. martin (french part)":"MF","morocco":"MA","monaco":"MC","moldova":"MD","madagascar":"MG","maldives":"MV","mexico":"MX","marshall islands":"MH","north macedonia":"MK","mali":"ML","malta":"MT","myanmar":"MM","montenegro":"ME","mongolia":"MN","northern mariana islands":"MP","mozambique":"MZ","mauritania":"MR","mauritius":"MU","malawi":"MW","malaysia":"MY","namibia":"NA","new caledonia":"NC","niger":"NE","nigeria":"NG","nicaragua":"NI","netherlands":"NL","norway":"NO","nepal":"NP","nauru":"NR","new zealand":"NZ","oman":"OM","pakistan":"PK","panama":"PA","peru":"PE","philippines":"PH","palau":"PW","papua new guinea":"PG","poland":"PL","puerto rico":"PR","korea, dem. people's rep.":"KP","portugal":"PT","paraguay":"PY","qatar":"QA","romania":"RO","russian federation":"RU","russland":"RU","rwanda":"RW","saudi arabia":"SA","sudan":"SD","senegal":"SN","singapore":"SG","solomon islands":"SB","sierra leone":"SL","el salvador":"SV","san marino":"SM","somalia":"SO","serbia":"RS","south sudan":"SS","sao tome and principe":"ST","suriname":"SR","slovak republic":"SK","slovenia":"SI","sweden":"SE","eswatini":"SZ","sint maarten (dutch part)":"SX","seychelles":"SC","syrian arab republic":"SY","turks and caicos islands":"TC","chad":"TD","togo":"TG","thailand":"TH","tajikistan":"TJ","turkmenistan":"TM","timor-leste":"TL","tonga":"TO","trinidad and tobago":"TT","tunisia":"TN","turkey":"TR","türkei":"TR","tuerkei":"TR","tuvalu":"TV","tanzania":"TZ","uganda":"UG","ukraine":"UA","uruguay":"UY","united states":"US","usa":"US","vereinigte staaten":"US","uzbekistan":"UZ","st. vincent and the grenadines":"VC","venezuela, rb":"VE","british virgin islands":"VG","virgin islands (u.s.)":"VI","viet nam":"VN","vanuatu":"VU","samoa":"WS","kosovo":"XK","yemen, rep.":"YE","south africa":"ZA","zambia":"ZM","zimbabwe":"ZW"};
+
+async function fetchPopulation(country) {
+    const normalized = country.toLowerCase().trim();
+    const code = countryCodes[normalized] || "DE";
+    const url = `https://api.worldbank.org/v2/country/${code}/indicator/SP.POP.TOTL?format=json&per_page=50`;
+    try {
+        const res = await fetch(url);
+        if (!res.ok) return 0;
+        const data = await res.json();
+        if (!data?.[1] || data[1].length === 0) return 0;
+        data[1].sort((a, b) => b.date - a.date);
+        return data[1][0].value || 0;
+    } catch (error) { console.error("Could not fetch population data:", error); return 0; }
+}
+
+async function callGemini(prompt) {
+    const apiKey = el('gemini-api-key').value.trim();
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    if (!apiKey) {
+        throw new Error(translations[langCode].errorApiKeyMissing);
+    }
+    // Geändert zu einem gültigen Modell (gemini-1.5-flash-latest), da das ursprüngliche Modell nicht existiert.
+    // Falls ein anderes Modell gewünscht ist, kann es angepasst werden.
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0.3,
+        }
+    };
+    const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+        const errorData = await res.json();
+        const errorMessage = errorData.error?.message || `Gemini API Error (${res.status}): Unknown error`;
+        throw new Error(errorMessage);
+    }
+    const data = await res.json();
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!content) {
+        throw new Error("No content returned from Gemini API.");
+    }
+    return content;
+}
+
+function calculateTargetAudience(population, potentialLevel) {
+    let percentage;
+    switch(potentialLevel) {
+        case '1': percentage = 0.01 + Math.random() * 0.02; break; // Niche 1-3%
+        case '3': percentage = 0.09 + Math.random() * 0.11; break; // Mass 9-20%
+        default: percentage = 0.04 + Math.random() * 0.04; break; // Standard 4-8%
+    }
+    return Math.round(population * percentage);
+}
+
+async function analyzeMarketPotential() {
+    const product = el("product").value.trim();
+    const niche = el("niche").value.trim();
+    const country = el("country").value.trim();
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    const language = translations[langCode].outputLanguageName;
+    const t = translations[langCode];
+    
+    if (!product || !niche || !country) {
+        showError(t.errorAllFields);
+        return;
+    }
+    hideError();
+    invalidateAnalysis(true);
+    setLoaderText(t.loaderAnalyzing);
+    show("loader", true);
+
+    try {
+        const prompt = `Act as a market analyst. Based on the product, niche, and country, classify the market potential. - Product: "${product}" - Niche: "${niche}" - Country: "${country}" - Language for reasoning: "${language}" Return ONLY a JSON object with two keys: 1. "potential": A number between 1 (niche), 2 (standard), or 3 (mass market). 2. "reason": A brief, one-sentence justification in the specified language.`;
+        const raw = await callGemini(prompt);
+        const data = JSON.parse(raw);
+        
+        el('market-potential').value = data.potential || 2;
+        el('potential-reasoning').textContent = data.reason || "";
+        showBlock('potential-section', true);
+        appState = 'analyzed';
+        updateButtonState();
+
+    } catch (err) {
+        showError(err.message);
+        console.error(err);
+    } finally {
+        show("loader", false);
+    }
+}
+function renderFullPersona(data, population){
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    const t = translations[langCode];
+    const pct = population > 0 ? (data.zielgruppen_anzahl / population) * 100 : 0;
+     el("result").innerHTML = `
+            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm"><h2 class="text-2xl font-bold mb-4 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>${t.resultTitleAnalysis}</h2><p><strong>${t.resultEstimatedSize}</strong> ${data.zielgruppen_anzahl.toLocaleString(langCode)}</p><p class="text-sm text-slate-600 mt-1"><strong>${t.resultJustification}</strong> ${data.begruendung_zielgruppengroesse}</p></div>
+            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>${t.resultTitleDetails}</h3><p><strong>${t.resultName}</strong> ${data.persona.Name}</p><p><strong>${t.resultAge}</strong> ${data.persona.Alter}</p><p><strong>${t.resultGender}</strong> ${data.persona.Geschlecht}</p><p><strong>${t.resultLocation}</strong> ${data.persona.Standort}</p><p><strong>${t.resultProfession}</strong> ${data.persona.Beruf}</p><div class="mt-2"><strong>${t.resultPainPoints}</strong><ul class="list-disc list-inside mt-1 text-slate-600">${data.persona.PainPoints.map(point => `<li>${point}</li>`).join('')}</ul></div></div>
+            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.353a1.76 1.76 0 013.417-.592V5.882zM15.5 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.353a1.76 1.76 0 013.417-.592V5.882z" /></svg>${t.resultTitleAdCopies}</h3><p class="mb-1"><strong>${t.resultLinkedIn}</strong> ${data.persona.AdCopies.LinkedIn}</p><p class="mb-1"><strong>${t.resultMeta}</strong> ${data.persona.AdCopies.Meta}</p><p><strong>${t.resultTikTokAd}</strong> ${data.persona.AdCopies.TikTok}</p></div>
+            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>${t.resultTitleKeywords}</h3><div class="mb-2"><strong>${t.resultInstagram}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.Instagram.join(', ')}</p></div><div class="mb-2"><strong>${t.resultTikTok}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.TikTok.join(', ')}</p></div><div class="mb-2"><strong>${t.resultFacebook}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.Facebook.join(', ')}</p></div><div><strong>${t.resultYouTube}</strong><p class="text-sm text-slate-600">${data.socialMediaKeywords.YouTube.join(', ')}</p></div></div>
+            <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 shadow-sm"><h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>${t.resultTitleComparison}</h3><div class="bg-slate-200 rounded-full h-5 overflow-hidden"><div class="bg-indigo-600 h-full rounded-full" style="width: ${pct.toFixed(2)}%"></div></div><div class="grid grid-cols-3 gap-4 text-center mt-3 text-sm"><div><div class="font-bold">${data.zielgruppen_anzahl.toLocaleString(langCode)}</div><div class="text-slate-500">${t.resultTargetGroup}</div></div><div><div class="font-bold">${population > 0 ? population.toLocaleString(langCode) : 'N/A'}</div><div class="text-slate-500">${t.resultPopulation}</div></div><div><div class="font-bold">${pct.toFixed(2)}%</div><div class="text-slate-500">${t.resultShare}</div></div></div></div>`;
+}
+
+async function generateFullPersona() {
+    const product = el("product").value.trim();
+    const niche = el("niche").value.trim();
+    const country = el("country").value.trim();
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    const language = translations[langCode].outputLanguageName;
+    const potential = el("market-potential").value;
+    const t = translations[langCode];
+    const potentialMap = { '1': 'Niche', '2': 'Standard', '3': 'Mass Market' };
+    const marketScale = potentialMap[potential];
+
+    setLoaderText(t.loaderGeneratingPersona);
+    show("loader", true);
+    el("result").style.display = "none";
+    
+    try {
+        currentPopulation = await fetchPopulation(country);
+        const targetAudienceSize = calculateTargetAudience(currentPopulation, potential);
+        const prompt = `Analyse: Erstelle eine Persona für ein Produkt mit dem Marktpotenzial "${marketScale}".\n- Land: ${country}\n- Produkt: ${product}\n- Nische: ${niche}\n- Sprache: ${language}\n- Vorgegebene Zielgruppengröße: ${targetAudienceSize}\n\nAnweisungen:\n1.  **Persona-Qualität:** Die Persona muss die Merkmale des Marktpotenzials widerspiegeln.\n    -   Für 'Niche': Erstelle einen Spezialisten, Early Adopter oder Enthusiasten. Beruf, Pain Points und Interessen müssen hochspezifisch sein.\n    -   Für 'Standard': Erstelle einen informierten Käufer in einem etablierten Markt. Die Pain Points sind bekannt, aber breiter als in der Nische.\n    -   Für 'Mass Market': Erstelle einen Durchschnittsverbraucher. Die Pain Points müssen alltäglich und weit verbreitet sein (z.B. Zeit, Geld, soziale Anerkennung). Die demografischen Daten sollten den Durchschnitt des Landes widerspiegeln.\n2.  **Begründung:** Gib eine logische Begründung, warum diese spezifische Persona zur vorgegebenen Zielgruppengröße und zum Marktpotenzial passt.\n3.  **Inhalte:** Erstelle passende Ad Copies, Hashtags und Keywords für alle Plattformen, die exakt auf die erstellte Persona und ihre spezifischen Merkmale zugeschnitten sind.\n4.  **Sprache:** Die gesamte Antwort muss in der Zielsprache (${language}) sein.\n\nRückgabe NUR als JSON-Objekt im folgenden Format (die "zielgruppen_anzahl" muss exakt ${targetAudienceSize} sein):\n{ "zielgruppen_anzahl": ${targetAudienceSize}, "begruendung_zielgruppengroesse": "string", "persona": { "Name": "string", "Alter": "string", "Geschlecht": "string", "Standort": "string", "Beruf": "string", "PainPoints": ["string"], "AdCopies": { "LinkedIn": "string", "Meta": "string", "TikTok": "string" }}, "socialMediaKeywords": { "Instagram": ["string"], "TikTok": ["string"], "Facebook": ["string"], "YouTube": ["string"] }}`;
+        const raw = await callGemini(prompt);
+        currentPersonaData = JSON.parse(raw);
+        
+        renderFullPersona(currentPersonaData, currentPopulation);
+        
+        showBlock("result", true);
+        appState = 'generated';
+        updateButtonState();
+        show('export-container', true);
+        show('strategy-buttons', true);
+    } catch (err) {
+        showError(err.message);
+        console.error(err);
+    } finally {
+        show("loader", false);
+    }
+}
+function renderContentIdeas(data) {
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    const t = translations[langCode];
+    const ideas = data.contentIdeas;
+    const renderIdea = (item) => `<div class="mb-2"><p class="font-semibold text-slate-800">${item.title}</p><p class="text-xs text-slate-500">${item.description}</p></div>`;
+
+    el('content-ideas-result').innerHTML = `
+        <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm">
+            <h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0" /></svg>${t.resultTitleContentIdeas}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div><h4 class="font-bold text-slate-800 mb-2">${t.resultBlog}</h4><div class="space-y-3">${ideas.blog.map(renderIdea).join('')}</div></div>
+                <div><h4 class="font-bold text-slate-800 mb-2">${t.resultYouTubeVideos}</h4><div class="space-y-3">${ideas.youtube.map(renderIdea).join('')}</div></div>
+                <div><h4 class="font-bold text-slate-800 mb-2">${t.resultTikTokVideos}</h4><div class="space-y-3">${ideas.tiktok.map(renderIdea).join('')}</div></div>
+            </div>
+        </div>`;
+    el('content-ideas-result').dataset.json = JSON.stringify(data);
+    showBlock('content-ideas-result', true);
+    el('content-ideas-result').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function generateContentIdeas() {
+    if (!currentPersonaData) return;
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    const language = translations[langCode].outputLanguageName;
+    const t = translations[langCode];
+
+    setLoaderText(t.loaderGeneratingContent);
+    show("loader", true);
+    showBlock("content-ideas-result", false);
+    
+    try {
+        const prompt = `Based on this detailed persona: ${JSON.stringify(currentPersonaData.persona)}\nAnd these keywords: ${JSON.stringify(currentPersonaData.socialMediaKeywords)}\nGenerate 3 specific, actionable content ideas for each of the following platforms: Blog, YouTube, TikTok. The ideas must directly appeal to the persona's pain points and interests.\nReturn ONLY a JSON object in the language "${language}" with the following structure:\n{ "contentIdeas": { "blog": [{ "title": "string", "description": "string" }], "youtube": [{ "title": "string", "description": "string" }], "tiktok": [{ "title": "string", "description": "string" }] }}`;
+        const raw = await callGemini(prompt);
+        const data = JSON.parse(raw);
+        renderContentIdeas(data);
+    } catch(err) {
+        showError(err.message);
+        console.error(err);
+    } finally {
+        show("loader", false);
+    }
+}
+function renderJourney(data) {
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    const t = translations[langCode];
+    const journey = data.customerJourney;
+    const renderStage = (stage) => stage.map(item => `<div class="mb-2"><p class="font-semibold text-slate-800">${item.channel}</p><p class="text-xs text-slate-500">${item.description}</p></div>`).join('');
+    
+    el('journey-result').innerHTML = `
+        <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm">
+            <h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l4 4m0 0l-4 4m4-4H3" /></svg>${t.resultTitleJourney}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div><h4 class="font-bold text-slate-800 mb-2">${t.journeyAwareness}</h4><div class="space-y-3">${renderStage(journey.awareness)}</div></div>
+                <div><h4 class="font-bold text-slate-800 mb-2">${t.journeyConsideration}</h4><div class="space-y-3">${renderStage(journey.consideration)}</div></div>
+                <div><h4 class="font-bold text-slate-800 mb-2">${t.journeyConversion}</h4><div class="space-y-3">${renderStage(journey.conversion)}</div></div>
+            </div>
+        </div>`;
+    el('journey-result').dataset.json = JSON.stringify(data);
+    showBlock('journey-result', true);
+    el('journey-result').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function generateJourney() {
+    if (!currentPersonaData) return;
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    const language = translations[langCode].outputLanguageName;
+    const t = translations[langCode];
+
+    setLoaderText(t.loaderGeneratingJourney);
+    show("loader", true);
+    showBlock("journey-result", false);
+
+    try {
+        const prompt = `Based on this persona: ${JSON.stringify(currentPersonaData.persona)} and product "${el('product').value}", create a detailed Customer Journey Map. The journey must describe the typical path this persona takes from problem awareness to purchase. Return ONLY a JSON object in the language "${language}" with the structure: { "customerJourney": { "awareness": [{ "channel": "string", "description": "string" }], "consideration": [{ "channel": "string", "description": "string" }], "conversion": [{ "channel": "string", "description": "string" }] } }`;
+        const raw = await callGemini(prompt);
+        const data = JSON.parse(raw);
+        renderJourney(data);
+    } catch(err) {
+        showError(err.message);
+        console.error(err);
+    } finally {
+        show("loader", false);
+    }
+}
+function renderAngles(data){
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    const t = translations[langCode];
+    const angles = data.marketingAngles;
+    
+    el('angles-result').innerHTML = `
+        <div class="persona-card bg-white border border-slate-200 rounded-xl p-6 mb-4 shadow-sm">
+            <h3 class="font-semibold text-xl mb-3 flex items-center"><svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2z" /></svg>${t.resultTitleAngles}</h3>
+            <div class="space-y-4">
+                ${angles.map(angle => `<div class="p-3 bg-slate-50 rounded-md"><p class="font-semibold text-slate-800">${angle.angle_name}</p><p class="text-sm text-slate-600">${angle.hook_text}</p></div>`).join('')}
+            </div>
+        </div>`;
+    el('angles-result').dataset.json = JSON.stringify(data);
+    showBlock('angles-result', true);
+    el('angles-result').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function generateAngles() {
+    if (!currentPersonaData) return;
+    const langCode = localStorage.getItem('appLanguage') || 'de';
+    const language = translations[langCode].outputLanguageName;
+    const t = translations[langCode];
+
+    setLoaderText(t.loaderGeneratingAngles);
+    show("loader", true);
+    showBlock("angles-result", false);
+
+    try {
+        const prompt = `Analyze the persona's deepest Pain Points: ${JSON.stringify(currentPersonaData.persona.PainPoints)}. For the product "${el('product').value}", generate 3-5 distinct marketing angles with a compelling hook for each. Base the angles on proven copywriting frameworks (e.g., Fear, Aspiration, Exclusivity, Problem-Agitate-Solve). Return ONLY a JSON object in the language "${language}" with the structure: { "marketingAngles": [{ "angle_name": "string", "hook_text": "string" }] }`;
+        const raw = await callGemini(prompt);
+        const data = JSON.parse(raw);
+        renderAngles(data);
+    } catch(err) {
+        showError(err.message);
+        console.error(err);
+    } finally {
+        show("loader", false);
+    }
+}
+
+function updateButtonState(lang) {
+    const currentLang = lang || localStorage.getItem('appLanguage') || 'de';
+    const t = translations[currentLang];
+    const btnGen = el('btnGen');
+    
+    switch(appState) {
+        case 'analyzed':
+            btnGen.textContent = t.btnConfirmGenerate;
+            break;
+        case 'generated':
+        case 'initial':
+        default:
+            btnGen.textContent = t.btnAnalyze;
+            break;
+    }
+    el('market-potential-label').textContent = t.marketPotentialLabel;
+}
+
+function mainButtonHandler() {
+    if (appState === 'generated') invalidateAnalysis();
+    if (appState === 'initial') analyzeMarketPotential();
+    else if (appState === 'analyzed') generateFullPersona();
+}
+
+function resetUI() {
+    ["product", "niche", "country", "gemini-api-key"].forEach(id => {
+        if(el(id)) el(id).value = "";
+    });
+    localStorage.removeItem('geminiApiKey');
+    ["result", "potential-section", "export-container", "strategy-buttons", "content-ideas-result", "journey-result", "angles-result"].forEach(id => showBlock(id, false));
+    el("market-potential").value = "2";
+    hideError();
+    appState = 'initial';
+    currentPersonaData = null;
+    currentPopulation = 0;
+    updateButtonState();
+}
+
+function invalidateAnalysis(soft = false) {
+    if (appState === 'analyzed' || appState === 'generated') {
+        showBlock("potential-section", false);
+        showBlock("result", false);
+        show('export-container', false);
+        show('strategy-buttons', false);
+        showBlock("content-ideas-result", false);
+        showBlock("journey-result", false);
+        showBlock("angles-result", false);
+        currentPersonaData = null;
+        if (!soft) {
+            appState = 'initial';
+            updateButtonState();
+        }
+    }
+}
+
+function exportPersona() {
+    const format = el('export-format').value;
+    const resultHtml = el('result').innerHTML + el('journey-result').innerHTML + el('angles-result').innerHTML + el('content-ideas-result').innerHTML;
+    const product = el('product').value.trim() || 'Persona';
+    const niche = el('niche').value.trim() || 'Export';
+    const filename = `Persona-${product.replace(/[^a-z0-9]/gi, '_')}-${niche.replace(/[^a-z0-9]/gi, '_')}.${format}`;
+    const exportContent = `<!DOCTYPE html><html lang="${document.documentElement.lang}" dir="${document.documentElement.dir}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Persona Export: ${product}</title><script src="https://cdn.tailwindcss.com"><\/script><style>body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; padding: 1.5rem; } .persona-card { border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; background-color: white; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); } .section-icon { width: 1.75rem; height: 1.75rem; margin-right: 0.75rem; color: #4338ca; }</style></head><body><div class="max-w-4xl mx-auto">${resultHtml}</div></body></html>`;
+    let blob;
+    if (format === 'doc') blob = htmlDocx.asBlob(exportContent);
+    else blob = new Blob([exportContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+const countryInput = el('country');
+const suggestionsContainer = el('country-suggestions');
+const countryList = Object.keys(countryCodes);
+countryInput.addEventListener('input', () => {
+    invalidateAnalysis();
+    const inputText = countryInput.value.toLowerCase();
+    if (inputText.length < 2) { suggestionsContainer.innerHTML = ''; suggestionsContainer.classList.add('hidden'); return; }
+    const filteredCountries = countryList.filter(country => country.toLowerCase().startsWith(inputText));
+    if (filteredCountries.length > 0) {
+        suggestionsContainer.innerHTML = filteredCountries.map(country => `<div class="p-2 hover:bg-slate-100 cursor-pointer">${country}</div>`).join('');
+        suggestionsContainer.classList.remove('hidden');
+    } else {
+        suggestionsContainer.innerHTML = ''; suggestionsContainer.classList.add('hidden');
+    }
+});
+suggestionsContainer.addEventListener('click', (e) => {
+    if (e.target.tagName === 'DIV') {
+        countryInput.value = e.target.textContent;
+        suggestionsContainer.innerHTML = ''; suggestionsContainer.classList.add('hidden');
+    }
+});
+document.addEventListener('click', (e) => {
+    if (!countryInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+        suggestionsContainer.classList.add('hidden');
+    }
+});
+
+const langBtn = el('lang-switcher-btn');
+const langMenu = el('lang-switcher-menu');
+langBtn.addEventListener('click', () => langMenu.classList.toggle('hidden'));
+langMenu.addEventListener('click', (e) => {
+    e.preventDefault();
+    const lang = e.target.getAttribute('data-lang');
+    if (lang) { setLanguage(lang); langMenu.classList.add('hidden'); }
+});
+document.addEventListener('click', (e) => {
+    if (!langBtn.contains(e.target) && !langMenu.contains(e.target)) {
+        langMenu.classList.add('hidden');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('appLanguage') || 'de';
+    setLanguage(savedLang);
+    el('gemini-api-key').value = localStorage.getItem('geminiApiKey') || '';
+});
+
+el('gemini-api-key').addEventListener('input', (e) => {
+    localStorage.setItem('geminiApiKey', e.target.value);
+});
+
+el("btnGen").addEventListener("click", mainButtonHandler);
+el("btnClear").addEventListener("click", resetUI);
+el("btnExport").addEventListener("click", exportPersona);
+el("btnContent").addEventListener("click", generateContentIdeas);
+el("btnJourney").addEventListener("click", generateJourney);
+el("btnAngles").addEventListener("click", generateAngles);
+["product", "niche", "country"].forEach(id => el(id).addEventListener("input", invalidateAnalysis));
+</script>
+</body>
+</html>
